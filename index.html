@@ -25,7 +25,7 @@
         Q.Sprite.extend("Player",{
 
             init: function(p) {
-                this._super(p, { asset: "player.png", x: 110, y: 50, jumpSpeed: -380, coins: 0});
+                this._super(p, { asset: "player.png", x: 110, y: 50, jumpSpeed: -380, coins: 0, lives: 3});
                 this.add('2d, platformerControls');
 
                 this.on("hit.sprite",function(collision) {
@@ -45,6 +45,14 @@
                         coinsLabel.p.label = 'Coins x '+this.p.coins;
                     }
                 });
+
+                this.on("die", function (killer) {
+                    //if(collision.obj.isA(""));
+                    this.lives = this.lives - 1;
+                    if(this.lives == 0) {
+                        //TODO: END GAME
+                    }
+                });
             },
 
             step: function(dt) {
@@ -57,9 +65,10 @@
 
 
                 if(this.p.y >= 640) {
-                    console.log("I died! oh noes");
+                    this.trigger("die", "fall");
                 }
-            }                    
+            }
+
         });
 
         //spring
@@ -93,7 +102,7 @@
             this.add('2d, aiBounce');
             
             this.on("bump.left,bump.right,bump.bottom",function(collision) {
-              if(collision.obj.isA("Player")) { 
+              if(collision.obj.isA("Player")) {
                 console.log("hoi");
                 collision.obj.destroy();
               }

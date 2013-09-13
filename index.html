@@ -21,6 +21,7 @@
             height: 640
         }).controls().touch();
 
+        //player
         Q.Sprite.extend("Player",{
 
             init: function(p) {
@@ -54,12 +55,14 @@
                     this.p.flip = false;                    
                 }
 
+
                 if(this.p.y >= 640) {
                     console.log("I died! oh noes");
                 }
             }                    
         });
 
+        //spring
         Q.Sprite.extend("Spring",{
 
             init: function(p) {
@@ -68,29 +71,30 @@
                     frame: 1
                 });
 
-              this.add("2d");
+                this.add("2d");
 
-              this.on("bump.top,bump.left,bump.right,bump.bottom",function(collision) {
-                if(collision.obj.isA("Player")) { 
-                    collision.obj.p.vy = -800;
-                    this.sheet.frame = 1;
+                this.on("bump.top,bump.left,bump.right,bump.bottom",function(collision) {
+                    if(collision.obj.isA("Player")) { 
+                        collision.obj.p.vy = -800;
+                        this.sheet.frame = 1;
 
-                } 
-            }); 
-          },
-          step : function (dt) {
+                    } 
+                }); 
+            },
+            step : function (dt) {
 
-          } 
-      });
+            } 
+        });
 
-        Q.Sprite.extend("Enemy",{
+        //enemy
+        Q.Sprite.extend("Monster",{
           init: function(p) {
-            this._super(p, { sheet: 'enemy', vx: 100 });
+            this._super(p, { asset: 'monster.png', x: 120, y: 200 });
             this.add('2d, aiBounce');
             
             this.on("bump.left,bump.right,bump.bottom",function(collision) {
               if(collision.obj.isA("Player")) { 
-                Q.stageScene("endGame",1, { label: "You Died" }); 
+                console.log("hoi");
                 collision.obj.destroy();
               }
             });
@@ -159,7 +163,6 @@
           });
 
 
-
             Q.scene("level1",function(stage) {          
                 var background = new Q.TileLayer({ dataAsset: 'level1.tmx', layerIndex: 0, sheet: 'tiles', tileW: 70, tileH: 70, type: Q.SPRITE_NONE });
 
@@ -169,7 +172,11 @@
 
                 var player = stage.insert(new Q.Player());
 
-                stage.insert(new Q.Enemy({ x: 400, y: 400 }));
+                stage.insert(new Q.Monster({x : 350, y: 50, vx: 100}));
+
+                stage.insert(new Q.Monster({x : 550, y: 50, vx: 100}));
+
+                stage.insert(new Q.Monster({x : 800, y: 50, vx: 100}));
                 
                 stage.add("viewport").follow(player,{x: true, y: true},{minX: 0, maxX: background.p.w, minY: 0, maxY: background.p.h});
 

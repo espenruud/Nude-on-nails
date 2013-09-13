@@ -49,11 +49,11 @@
               this.on("bump.top,bump.left,bump.right,bump.bottom",function(collision) {
                 if(collision.obj.isA("Player")) { 
                     collision.obj.p.vy = -800;
-                    this.frame = 0
-                }
+                    this.sheet.frame = 1;
+
+                } 
             }); 
           },
-
           step : function (dt) {
 
           } 
@@ -112,11 +112,27 @@
                 stage.add("viewport").follow(player,{x: true, y: true},{minX: 0, maxX: background.p.w, minY: 0, maxY: background.p.h});
 
                 stage.insert(new Q.Spring({ 
-                    //asset: "springboard.png", 
                     sheet: "SheetSpringboard",
                     frame: 0,
                     x: 130, 
                     y: 590,
+                    w: 70,
+                    h: 70
+                }));
+
+                stage.insert(new Q.Spring({ 
+                    sheet: "SheetSpringboard",
+                    frame: 0,
+                    x: 250, 
+                    y: 200,
+                    w: 70,
+                    h: 70
+                }));
+                stage.insert(new Q.Spring({ 
+                    sheet: "SheetSpringboard",
+                    frame: 0,
+                    x: 1400, 
+                    y: 200,
                     w: 70,
                     h: 70
                 }));  

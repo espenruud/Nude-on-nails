@@ -23,31 +23,37 @@
 
         //player
         Q.Sprite.extend("Player",{
+
             init: function(p) {
-<<<<<<< HEAD
-              this._super(p, { asset: "player.png", x: 2200, y: 100, jumpSpeed: -380});
-              this.add('2d, platformerControls');
-              this.on("bump.top,bump.left,bump.right,bump.bottom",function(collision) {
-                if(collision.obj.isA("Flag")) {
-                    collision.obj.destroy(); 
-                    alert("game over");
-                    window.location = "";
-                } 
-            });           
-          },
-          step: function(dt) {
-            if(Q.inputs['left'] && this.p.direction == 'right') {
-                this.p.flip = 'x';
-            } 
-            if(Q.inputs['right']  && this.p.direction == 'left') {
-                this.p.flip = false;                    
-            }
-        }                    
-    });
-=======
-                this._super(p, { asset: "player.png", x: 110, y: 50, jumpSpeed: -380});
-                this.add('2d, platformerControls'); 
+                this._super(p, { asset: "player.png", x: 110, y: 50, jumpSpeed: -380, coins: 0});
+                this.add('2d, platformerControls');
+
+                this.on("hit.sprite",function(collision) {
+                    if(collision.obj.isA("Coin")) {
+                        collision.obj.destroy();
+                        this.p.coins++;
+                        //TODO: update the GUI
+
+                    }
+                });
+
+                this.on("hit.sprite",function(collision) {
+                    if(collision.obj.isA("Coin")) {
+                        collision.obj.destroy();
+                        this.p.coins++;
+                        var coinsLabel = Q("UI.Text",1).items[1];
+                        coinsLabel.p.label = 'Coins x '+this.p.coins;
+                    }
+                });
+                this.on("bump.top,bump.left,bump.right,bump.bottom",function(collision) {
+                    if(collision.obj.isA("Flag")) { 
+                        this.destroy();
+                        window.location("/");
+                        alert("Finished game!");
+                    } 
+                }); 
             },
+
             step: function(dt) {
                 if(Q.inputs['left'] && this.p.direction == 'right') {
                     this.p.flip = 'x';
@@ -55,9 +61,13 @@
                 if(Q.inputs['right']  && this.p.direction == 'left') {
                     this.p.flip = false;                    
                 }
+
+
+                if(this.p.y >= 640) {
+                    console.log("I died! oh noes");
+                }
             }                    
         });
->>>>>>> cb779b38e4c78947e5b0690d3710f71aefd720f6
 
         //spring
         Q.Sprite.extend("Spring",{
@@ -75,40 +85,23 @@
                         collision.obj.p.vy = -800;
                         this.sheet.frame = 1;
 
-<<<<<<< HEAD
-                } 
-            }); 
-          },
-          step : function (dt) {
-
-          } 
-      });
-        Q.Sprite.extend("Flag"), {
-            init: function(p){
-                this.add("2d");
-            }
-        }
-
-
-            //load assets
-            Q.load("tiles_map.png, player.png, level1.tmx, springboard.png, flagRed.png", function() {
-              Q.sheet("tiles","tiles_map.png", { tilew: 70, tileh: 70});          
-              Q.stageScene("level1");
-              Q.sheet("SheetSpringboard",
-                "springboard.png",
-                {
-                    tilew: 70,
-                    tileh: 70
-                }
-                );
-          });
-=======
                     } 
                 }); 
             },
             step : function (dt) {
 
             } 
+        });
+        //spring
+        Q.Sprite.extend("Flag",{
+
+            init: function(p) {
+                this._super(p,{
+                    asset: "flagRed.png"
+                });
+
+                this.add("2d");
+            }
         });
 
         //enemy
@@ -133,21 +126,59 @@
           }
         });
 
-
-        //load assets
-        Q.load("tiles_map.png, player.png, level1.tmx, springboard.png, monster.png", function() {
-          Q.sheet("tiles","tiles_map.png", { tilew: 70, tileh: 70});          
-          Q.stageScene("level1");
-          Q.sheet("SheetSpringboard",
-            "springboard.png",
-            {
-                tilew: 70,
-                tileh: 70
-            }
+        // Gamestats (!)
+        Q.scene("gameStats", function(stage) {
+            var statsContainer = stage.insert(new Q.UI.Container({
+                fill: "gray",
+                x: 960/2,
+                y: 620,
+                border: 1,
+                shadow: 3,
+                shadowColor: "rgba(0,0,0,0.5)",
+                w: 960,
+                h: 40
+                })
             );
+                
+            var lives = stage.insert(new Q.UI.Text({ 
+                label: "Lives x 3",
+                color: "white",
+                x: -300,
+                y: 0
+            }),statsContainer);
+            
+            var coins = stage.insert(new Q.UI.Text({ 
+                label: "Coins x 0",
+                color: "white",
+                x: 300,
+                y: 0
+            }),statsContainer);
         });
->>>>>>> cb779b38e4c78947e5b0690d3710f71aefd720f6
 
+        // Coin sprite
+        Q.Sprite.extend("Coin", {
+            init: function(p) {
+                this._super(p, {
+                    asset: "coin.png"
+                });
+            }            
+        });
+
+            //load assets
+            Q.load("tiles_map.png, player.png, level1.tmx, springboard.png, monster.png, coin.png, flagRed.png", function() {
+              Q.sheet("tiles","tiles_map.png", { tilew: 70, tileh: 70});          
+              Q.stageScene("level1");
+              Q.stageScene("gameStats", 1);
+              Q.sheet("SheetSpringboard",
+                "springboard.png",
+                {
+                    tilew: 70,
+                    tileh: 70
+                }
+                );
+
+                Q.sheet("enemy", "sprites.png",{tilew: 30, tileh: 30 });
+          });
 
 
             Q.scene("level1",function(stage) {          
@@ -191,14 +222,32 @@
                     y: 200,
                     w: 70,
                     h: 70
-                }));
+                }));  
                 stage.insert(new Q.Flag({
                     asset: "flagRed.png",
                     w: 70,
                     h: 70,
                     x: 2700,
                     y: 600
-                }));
+                }));         
+
+                var levelAssets = [
+                    ["Coin", {x: 300, y: 100}],
+                    ["Coin", {x: 360, y: 100}],
+                    ["Coin", {x: 420, y: 100}],
+                    ["Coin", {x: 480, y: 100}],
+                    ["Coin", {x: 800, y: 300}],
+                    ["Coin", {x: 860, y: 300}],
+                    ["Coin", {x: 920, y: 300}],
+                    ["Coin", {x: 980, y: 300}],
+                    ["Coin", {x: 1040, y: 300}],
+                    ["Coin", {x: 1100, y: 300}],
+                    ["Coin", {x: 1160, y: 300}],
+                    ["Coin", {x: 1250, y: 400}],
+                    ["Coin", {x: 1310, y: 400}],
+                    ["Coin", {x: 1370, y: 400}]
+                ];
+                stage.loadAssets(levelAssets); 
             });
 
         </script>

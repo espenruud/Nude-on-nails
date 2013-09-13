@@ -21,8 +21,10 @@
             height: 640
         }).controls().touch();
 
+        //player
         Q.Sprite.extend("Player",{
             init: function(p) {
+<<<<<<< HEAD
               this._super(p, { asset: "player.png", x: 2200, y: 100, jumpSpeed: -380});
               this.add('2d, platformerControls');
               this.on("bump.top,bump.left,bump.right,bump.bottom",function(collision) {
@@ -42,7 +44,22 @@
             }
         }                    
     });
+=======
+                this._super(p, { asset: "player.png", x: 110, y: 50, jumpSpeed: -380});
+                this.add('2d, platformerControls'); 
+            },
+            step: function(dt) {
+                if(Q.inputs['left'] && this.p.direction == 'right') {
+                    this.p.flip = 'x';
+                } 
+                if(Q.inputs['right']  && this.p.direction == 'left') {
+                    this.p.flip = false;                    
+                }
+            }                    
+        });
+>>>>>>> cb779b38e4c78947e5b0690d3710f71aefd720f6
 
+        //spring
         Q.Sprite.extend("Spring",{
 
             init: function(p) {
@@ -51,13 +68,14 @@
                     frame: 1
                 });
 
-              this.add("2d");
+                this.add("2d");
 
-              this.on("bump.top,bump.left,bump.right,bump.bottom",function(collision) {
-                if(collision.obj.isA("Player")) { 
-                    collision.obj.p.vy = -800;
-                    this.sheet.frame = 1;
+                this.on("bump.top,bump.left,bump.right,bump.bottom",function(collision) {
+                    if(collision.obj.isA("Player")) { 
+                        collision.obj.p.vy = -800;
+                        this.sheet.frame = 1;
 
+<<<<<<< HEAD
                 } 
             }); 
           },
@@ -84,6 +102,51 @@
                 }
                 );
           });
+=======
+                    } 
+                }); 
+            },
+            step : function (dt) {
+
+            } 
+        });
+
+        //enemy
+        Q.Sprite.extend("Monster",{
+          init: function(p) {
+            this._super(p, { asset: 'monster.png', x: 120, y: 200 });
+            this.add('2d, aiBounce');
+            
+            this.on("bump.left,bump.right,bump.bottom",function(collision) {
+              if(collision.obj.isA("Player")) { 
+                console.log("hoi");
+                collision.obj.destroy();
+              }
+            });
+            
+            this.on("bump.top",function(collision) {
+              if(collision.obj.isA("Player")) { 
+                this.destroy();
+                collision.obj.p.vy = -300;
+              }
+            });
+          }
+        });
+
+
+        //load assets
+        Q.load("tiles_map.png, player.png, level1.tmx, springboard.png, monster.png", function() {
+          Q.sheet("tiles","tiles_map.png", { tilew: 70, tileh: 70});          
+          Q.stageScene("level1");
+          Q.sheet("SheetSpringboard",
+            "springboard.png",
+            {
+                tilew: 70,
+                tileh: 70
+            }
+            );
+        });
+>>>>>>> cb779b38e4c78947e5b0690d3710f71aefd720f6
 
 
 
@@ -95,6 +158,13 @@
                 stage.collisionLayer(new Q.TileLayer({ dataAsset: 'level1.tmx', layerIndex:1,  sheet: 'tiles', tileW: 70, tileH: 70 }));
 
                 var player = stage.insert(new Q.Player());
+
+                stage.insert(new Q.Monster({x : 350, y: 50, vx: 100}));
+
+                stage.insert(new Q.Monster({x : 550, y: 50, vx: 100}));
+
+                stage.insert(new Q.Monster({x : 800, y: 50, vx: 100}));
+                
                 stage.add("viewport").follow(player,{x: true, y: true},{minX: 0, maxX: background.p.w, minY: 0, maxY: background.p.h});
 
                 stage.insert(new Q.Spring({ 

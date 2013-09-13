@@ -1,71 +1,78 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title></title>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <script src='lib/quintus.js'></script>
-        <script src='lib/quintus_sprites.js'></script>
-        <script src='lib/quintus_scenes.js'></script>
-        <script src='lib/quintus_input.js'></script>
-        <script src='lib/quintus_anim.js'></script>
-        <script src='lib/quintus_2d.js'></script>
-        <script src='lib/quintus_touch.js'></script>
-        <script src='lib/quintus_ui.js'></script>
-    </head>
-    <body style="background-color: black;">
-        <script>
-            var Q = Quintus()
-                .include("Sprites, Scenes, Input, 2D, Touch, UI")
-                .setup({
-                    width: 960,
-                    height: 640
-                }).controls().touch();
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <script src='lib/quintus.js'></script>
+    <script src='lib/quintus_sprites.js'></script>
+    <script src='lib/quintus_scenes.js'></script>
+    <script src='lib/quintus_input.js'></script>
+    <script src='lib/quintus_anim.js'></script>
+    <script src='lib/quintus_2d.js'></script>
+    <script src='lib/quintus_touch.js'></script>
+    <script src='lib/quintus_ui.js'></script>
+</head>
+<body style="background-color: black;">
+    <script>
+        var Q = Quintus({development: true})
+        .include("Sprites, Scenes, Input, 2D, Touch, UI")
+        .setup({
+            width: 960,
+            height: 640
+        }).controls().touch();
 
-            Q.Sprite.extend("Player",{
-                init: function(p) {
-                  this._super(p, { asset: "player.png", x: 110, y: 50, jumpSpeed: -380});
-                  this.add('2d, platformerControls');              
-                },
-                step: function(dt) {
-                    if(Q.inputs['left'] && this.p.direction == 'right') {
-                        this.p.flip = 'x';
-                    } 
-                    if(Q.inputs['right']  && this.p.direction == 'left') {
-                        this.p.flip = false;                    
-                    }
-                }                    
-            });
+        Q.Sprite.extend("Player",{
+            init: function(p) {
+              this._super(p, { asset: "player.png", x: 110, y: 50, jumpSpeed: -380});
+              this.add('2d, platformerControls');              
+          },
+          step: function(dt) {
+            if(Q.inputs['left'] && this.p.direction == 'right') {
+                this.p.flip = 'x';
+            } 
+            if(Q.inputs['right']  && this.p.direction == 'left') {
+                this.p.flip = false;                    
+            }
+        }                    
+    });
 
-            Q.Sprite.extend("Spring",{
-               
-                init: function(p) {
-                  this._super(p,{
-                    w : 70,
-                    h : 35
-                  });
+        Q.Sprite.extend("Spring",{
 
-                  this.add("2d");
+            init: function(p) {
+                this._super(p,{
+                    sheet: "SheetSpringboard",
+                    frame: 1
+                });
 
-                   this.on("bump.top,bump.left,bump.right,bump.bottom",function(collision) {
-                        if(collision.obj.isA("Player")) { 
-                          collision.obj.p.vy = -800;
-                          this.asset = "springboardUp.png";
+              this.add("2d");
 
-                        }
-                    }); 
-                },
+              this.on("bump.top,bump.left,bump.right,bump.bottom",function(collision) {
+                if(collision.obj.isA("Player")) { 
+                    collision.obj.p.vy = -800;
+                    this.frame = 0
+                }
+            }); 
+          },
 
-                step : function (dt) {
-                    var that = this;
-                } 
-            });
+          step : function (dt) {
+
+          } 
+      });
 
 
             //load assets
-            Q.load("tiles_map.png, player.png, level1.tmx, springboardDown.png, springboardUp.png", function() {
+            Q.load("tiles_map.png, player.png, level1.tmx, springboard.png", function() {
               Q.sheet("tiles","tiles_map.png", { tilew: 70, tileh: 70});          
               Q.stageScene("level1");
-            });
+              Q.sheet("SheetSpringboard",
+                "springboard.png",
+                {
+                    tilew: 70,
+                    tileh: 70
+                }
+                );
+          });
+
 
 
             Q.scene("level1",function(stage) {          
@@ -79,16 +86,16 @@
                 stage.add("viewport").follow(player,{x: true, y: true},{minX: 0, maxX: background.p.w, minY: 0, maxY: background.p.h});
 
                 stage.insert(new Q.Spring({ 
-                    asset: "springboardDown.png", 
+                    //asset: "springboard.png", 
+                    sheet: "SheetSpringboard",
+                    frame: 0,
                     x: 130, 
-                    y: 590
+                    y: 590,
+                    w: 70,
+                    h: 70
                 }));  
             });
 
-            
-            
-
-
         </script>
     </body>
-</html>
+    </html>
